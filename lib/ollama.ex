@@ -79,6 +79,58 @@ defmodule Ollama do
     end
   end
 
+  @generate_schema [
+    model: [
+      type: :string,
+      required: true,
+      doc: "The ollama model to use for the chat."
+    ],
+    prompt: [
+      type: :string,
+      required: true,
+      doc: "The prompt to generate a response for."
+    ],
+    system: [
+      type: :string,
+      doc: "System prompt (overrides the model default system prompt)."
+    ],
+    template: [
+      type: :string,
+      doc: "The prompt template to use (overrides the model default template)."
+    ],
+    format: [
+      type: {:or, [:string, :map]},
+      doc: "The format to return a response in. Format can be json or a JSON schema."
+    ],
+    stream: [
+      type: :boolean,
+      default: false,
+      doc: "Wether to stream the response or not."
+    ],
+    raw: [
+      type: :boolean,
+      default: false,
+      doc: "If `true` no formatting will be applied to the prompt."
+    ],
+    keep_alive: [
+      type: {:or, [:string, :integer]},
+      doc: "Controls how long the model will stay loaded into memory following the request."
+    ],
+    options: [
+      type: :map,
+      doc: "Additional model parameters."
+    ]
+  ]
+
+  def generate(%__MODULE__{} = client, opts) when is_list(opts) do
+    # todo: implement images
+    with {:ok, opts} <- NimbleOptions.validate(opts, @generate_schema) do
+      client
+      |> make_request(:post, "/generate", Enum.into(opts, %{}))
+      |> handle_response()
+    end
+  end
+
   @spec make_request(http_client(), atom(), Req.url(), keyword()) :: response()
   defp make_request(%__MODULE__{req: req}, method, url, opts) do
     Req.request(req, method: method, url: url, json: Enum.into(opts, %{}))

@@ -10,6 +10,15 @@ Initialize the client.
 client = Ollama.init()
 ```
 
+## Generate
+
+```elixir
+Ollama.generate(client, [
+  model: "llama3.2",
+  prompt: "Who is Luke Skywalker?"
+])
+```
+
 ## Chat
 
 ```elixir
